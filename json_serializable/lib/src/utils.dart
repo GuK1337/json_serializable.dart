@@ -114,6 +114,8 @@ ClassConfig mergeConfig(
     includeIfNull: annotation.includeIfNull ?? config.includeIfNull,
     ctorParamDefaults: paramDefaultValueMap,
     converters: converters.isNull ? const [] : converters.listValue,
+    defaultOnException:
+        annotation.defaultOnException ?? config.defaultOnException,
   );
 }
 

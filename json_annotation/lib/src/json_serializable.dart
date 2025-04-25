@@ -199,6 +199,10 @@ class JsonSerializable {
   /// `includeIfNull`, that value takes precedent.
   final bool? includeIfNull;
 
+  /// If `true`, generated `fromJson` functions returns the default value on
+  /// a serialization error
+  final bool? defaultOnException;
+
   /// A list of [JsonConverter] to apply to this class.
   ///
   /// Writing:
@@ -249,6 +253,7 @@ class JsonSerializable {
     this.includeIfNull,
     this.converters,
     this.genericArgumentFactories,
+    this.defaultOnException,
   });
 
   factory JsonSerializable.fromJson(Map<String, dynamic> json) =>
@@ -269,6 +274,7 @@ class JsonSerializable {
     ignoreUnannotated: false,
     includeIfNull: true,
     genericArgumentFactories: false,
+    defaultOnException: false,
   );
 
   /// Returns a new [JsonSerializable] instance with fields equal to the
@@ -291,6 +297,7 @@ class JsonSerializable {
         includeIfNull: includeIfNull ?? defaults.includeIfNull,
         genericArgumentFactories:
             genericArgumentFactories ?? defaults.genericArgumentFactories,
+        defaultOnException: defaultOnException ?? defaults.defaultOnException,
       );
 
   Map<String, dynamic> toJson() => _$JsonSerializableToJson(this);

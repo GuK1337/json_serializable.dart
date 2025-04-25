@@ -125,6 +125,62 @@ abstract class DecodeHelper implements HelperCore {
         ..write(fieldKeyMapArg)
         ..write(',);');
       fromJsonLines.add(sectionBuffer.toString());
+    } else if (config.defaultOnException) {
+      final classLiteral = escapeDartString(element.name);
+
+      final sectionBuffer = StringBuffer()
+        ..write('''
+  \$defaultCreate(
+    $classLiteral,
+    json,
+    (\$defaultConvert) {\n''')
+        ..write(checks.join())
+        ..write('''
+    final val = ${data.content};''');
+
+      for (final fieldName in data.fieldsToSet) {
+        sectionBuffer.writeln();
+        final fieldValue = accessibleFields[fieldName]!;
+        final safeName = safeNameAccess(fieldValue);
+        sectionBuffer
+          ..write('''
+    \$defaultConvert($safeName, (v) => ''')
+          ..write('val.$fieldName = ')
+          ..write(
+            _deserializeForField(fieldValue, checkedProperty: true),
+          );
+
+        final readValueFunc = jsonKeyFor(fieldValue).readValueFunctionName;
+        if (readValueFunc != null) {
+          sectionBuffer.writeln(',readValue: $readValueFunc,');
+        }
+        final defaultValue = jsonKeyFor(fieldValue).defaultValue;
+        if (defaultValue != null) {
+          sectionBuffer.writeln(',defaultValue: $defaultValue,');
+        }
+
+        sectionBuffer.write(');');
+      }
+
+      sectionBuffer.write('''\n    return val;
+  }''');
+
+      final fieldKeyMap = Map.fromEntries(data.usedCtorParamsAndFields
+          .map((k) => MapEntry(k, nameAccess(accessibleFields[k]!)))
+          .where((me) => me.key != me.value));
+
+      String fieldKeyMapArg;
+      if (fieldKeyMap.isEmpty) {
+        fieldKeyMapArg = '';
+      } else {
+        final mapLiteral = jsonMapAsDart(fieldKeyMap);
+        fieldKeyMapArg = ', fieldKeyMap: const $mapLiteral';
+      }
+
+      sectionBuffer
+        ..write(fieldKeyMapArg)
+        ..write(',);');
+      fromJsonLines.add(sectionBuffer.toString());
     } else {
       fromJsonLines.addAll(checks);
 
@@ -221,6 +277,18 @@ abstract class DecodeHelper implements HelperCore {
               readValueFunc == null ? '' : ',readValue: $readValueFunc,';
           value = '\$checkedConvert($jsonKeyName, (v) => $value$readValueBit)';
         }
+      } else if (config.defaultOnException) {
+        assert(
+          !checkedProperty,
+          'should only be true if `_generator.checked` is true.',
+        );
+        value = deserialize('v');
+        final readValueBit =
+            readValueFunc == null ? '' : ',readValue: $readValueFunc';
+        final defaultValueField =
+            defaultValue == null ? '' : ',defaultValue: $defaultValue, ';
+        value =
+            '\$defaultConvert($jsonKeyName, (v) => $value$readValueBit$defaultValueField)';
       } else {
         assert(
           !checkedProperty,
