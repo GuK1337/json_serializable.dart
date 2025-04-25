@@ -2,6 +2,8 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+// @dart=3.6
+
 import 'dart:collection';
 
 import 'package:json_annotation/json_annotation.dart';
@@ -55,12 +57,13 @@ GeneralTestClass1 _$GeneralTestClass1FromJson(Map<String, dynamic> json) =>
     GeneralTestClass1()
       ..firstName = json['firstName'] as String
       ..lastName = json['lastName'] as String
-      ..height = json['h'] as int
+      ..height = (json['h'] as num).toInt()
       ..dateOfBirth = DateTime.parse(json['dateOfBirth'] as String)
       ..dynamicType = json['dynamicType']
       ..varType = json['varType']
-      ..listOfInts =
-          (json['listOfInts'] as List<dynamic>).map((e) => e as int).toList();
+      ..listOfInts = (json['listOfInts'] as List<dynamic>)
+          .map((e) => (e as num).toInt())
+          .toList();
 
 Map<String, dynamic> _$GeneralTestClass1ToJson(GeneralTestClass1 instance) =>
     <String, dynamic>{
@@ -81,7 +84,7 @@ class GeneralTestClass1 {
   late DateTime dateOfBirth;
   dynamic dynamicType;
 
-  //ignore: prefer_typing_uninitialized_variables,type_annotate_public_apis
+  //ignore: prefer_typing_uninitialized_variables,type_annotate_public_apis,inference_failure_on_uninitialized_variable, strict_top_level_inference
   var varType;
   late List<int> listOfInts;
 }
@@ -89,7 +92,7 @@ class GeneralTestClass1 {
 @ShouldGenerate(r'''
 GeneralTestClass2 _$GeneralTestClass2FromJson(Map<String, dynamic> json) =>
     GeneralTestClass2(
-      json['height'] as int,
+      (json['height'] as num).toInt(),
       json['firstName'] as String,
       json['lastName'] as String?,
     )..dateOfBirth = DateTime.parse(json['dateOfBirth'] as String);
@@ -117,7 +120,7 @@ class GeneralTestClass2 {
 
 @ShouldGenerate(r'''
 FinalFields _$FinalFieldsFromJson(Map<String, dynamic> json) => FinalFields(
-      json['a'] as int,
+      (json['a'] as num).toInt(),
     );
 
 Map<String, dynamic> _$FinalFieldsToJson(FinalFields instance) =>
@@ -154,7 +157,7 @@ class FinalFieldsNotSetInCtor {
 
 @ShouldGenerate(r'''
 SetSupport _$SetSupportFromJson(Map<String, dynamic> json) => SetSupport(
-      (json['values'] as List<dynamic>).map((e) => e as int).toSet(),
+      (json['values'] as List<dynamic>).map((e) => (e as num).toInt()).toSet(),
     );
 
 Map<String, dynamic> _$SetSupportToJson(SetSupport instance) =>
@@ -214,20 +217,11 @@ class NoDeserializeBadKey {
 @ShouldGenerate(
   r'''
 Map<String, dynamic> _$IncludeIfNullOverrideToJson(
-    IncludeIfNullOverride instance) {
-  final val = <String, dynamic>{
-    'number': instance.number,
-  };
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('str', instance.str);
-  return val;
-}
+        IncludeIfNullOverride instance) =>
+    <String, dynamic>{
+      'number': instance.number,
+      if (instance.str case final value?) 'str': value,
+    };
 ''',
 )
 @JsonSerializable(createFactory: false, includeIfNull: false)
@@ -294,9 +288,11 @@ Map<String, dynamic> _$IgnoredFieldClassToJson(IgnoredFieldClass instance) =>
 ''')
 @JsonSerializable(createFactory: false)
 class IgnoredFieldClass {
+  // ignore: deprecated_member_use
   @JsonKey(ignore: true)
   late int ignoredTrueField;
 
+  // ignore: deprecated_member_use
   @JsonKey(ignore: false)
   late int ignoredFalseField;
 
@@ -304,16 +300,40 @@ class IgnoredFieldClass {
 }
 
 @ShouldThrow(
-  'Cannot populate the required constructor argument: '
-  'ignoredTrueField. It is assigned to an ignored field.',
+  'Cannot populate the required constructor argument: ignoredTrueField. It is '
+  'assigned to a field not meant to be used in fromJson.',
   element: '',
 )
 @JsonSerializable()
 class IgnoredFieldCtorClass {
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   int ignoredTrueField;
 
   IgnoredFieldCtorClass(this.ignoredTrueField);
+}
+
+@ShouldThrow(
+  'Error with `@JsonKey` on the `ignoredTrueField` field. '
+  'Cannot use both `ignore` and `includeToJson` on the same field. '
+  'Since `ignore` is deprecated, you should only use `includeToJson`.',
+)
+@JsonSerializable()
+class IgnoreAndIncludeToJsonFieldCtorClass {
+  // ignore: deprecated_member_use
+  @JsonKey(ignore: true, includeToJson: true)
+  int? ignoredTrueField;
+}
+
+@ShouldThrow(
+  'Error with `@JsonKey` on the `ignoredTrueField` field. '
+  'Cannot use both `ignore` and `includeFromJson` on the same field. '
+  'Since `ignore` is deprecated, you should only use `includeFromJson`.',
+)
+@JsonSerializable()
+class IgnoreAndIncludeFromJsonFieldCtorClass {
+  // ignore: deprecated_member_use
+  @JsonKey(ignore: true, includeFromJson: true)
+  int? ignoredTrueField;
 }
 
 @ShouldThrow(
@@ -429,8 +449,8 @@ mixin _PropInMixinI448RegressionMixin {
 PropInMixinI448Regression _$PropInMixinI448RegressionFromJson(
         Map<String, dynamic> json) =>
     PropInMixinI448Regression()
-      ..nullable = json['nullable'] as int
-      ..notNullable = json['notNullable'] as int;
+      ..nullable = (json['nullable'] as num).toInt()
+      ..notNullable = (json['notNullable'] as num).toInt();
 
 Map<String, dynamic> _$PropInMixinI448RegressionToJson(
         PropInMixinI448Regression instance) =>
@@ -448,7 +468,7 @@ class PropInMixinI448Regression with _PropInMixinI448RegressionMixin {
 @ShouldGenerate(
   r'''
 IgnoreUnannotated _$IgnoreUnannotatedFromJson(Map<String, dynamic> json) =>
-    IgnoreUnannotated()..annotated = json['annotated'] as int;
+    IgnoreUnannotated()..annotated = (json['annotated'] as num).toInt();
 
 Map<String, dynamic> _$IgnoreUnannotatedToJson(IgnoreUnannotated instance) =>
     <String, dynamic>{
@@ -467,7 +487,7 @@ class IgnoreUnannotated {
 @ShouldGenerate(
   r'''
 SubclassedJsonKey _$SubclassedJsonKeyFromJson(Map<String, dynamic> json) =>
-    SubclassedJsonKey()..annotatedWithSubclass = json['bob'] as int;
+    SubclassedJsonKey()..annotatedWithSubclass = (json['bob'] as num).toInt();
 
 Map<String, dynamic> _$SubclassedJsonKeyToJson(SubclassedJsonKey instance) =>
     <String, dynamic>{

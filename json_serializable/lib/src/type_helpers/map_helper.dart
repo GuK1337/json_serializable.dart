@@ -3,7 +3,6 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:analyzer/dart/element/type.dart';
-import 'package:collection/collection.dart';
 import 'package:source_helper/source_helper.dart';
 
 import '../constants.dart';
@@ -68,7 +67,7 @@ class MapHelper extends TypeHelper<TypeHelperContextWithConfig> {
 
     _checkSafeKeyType(expression, keyArg);
 
-    final valueArgIsAny = valueArg.isDynamic ||
+    final valueArgIsAny = valueArg is DynamicType ||
         (valueArg.isDartCoreObject && valueArg.isNullableType);
     final isKeyStringable = _isKeyStringable(keyArg);
 
@@ -94,7 +93,7 @@ class MapHelper extends TypeHelper<TypeHelperContextWithConfig> {
               // `toDouble` on input values
               valueArg.isSimpleJsonTypeNotDouble)) {
         // No mapping of the values or null check required!
-        final valueString = valueArg.getDisplayString(withNullability: true);
+        final valueString = valueArg.getDisplayString();
         return 'Map<String, $valueString>.from($expression as Map)';
       }
     }
@@ -114,7 +113,7 @@ class MapHelper extends TypeHelper<TypeHelperContextWithConfig> {
     if (keyArg.isEnum) {
       keyUsage = context.deserialize(keyArg, _keyParam).toString();
     } else if (context.config.anyMap &&
-        !(keyArg.isDartCoreObject || keyArg.isDynamic)) {
+        !(keyArg.isDartCoreObject || keyArg is DynamicType)) {
       keyUsage = '$_keyParam as String';
     } else if (context.config.anyMap &&
         keyArg.isDartCoreObject &&
@@ -147,7 +146,7 @@ final _instances = [
 ];
 
 ToFromStringHelper? _forType(DartType type) =>
-    _instances.singleWhereOrNull((i) => i.matches(type));
+    _instances.where((i) => i.matches(type)).singleOrNull;
 
 /// Returns `true` if [keyType] can be automatically converted to/from String –
 /// and is therefor usable as a key in a [Map].
@@ -157,7 +156,7 @@ bool _isKeyStringable(DartType keyType) =>
 void _checkSafeKeyType(String expression, DartType keyArg) {
   // We're not going to handle converting key types at the moment
   // So the only safe types for key are dynamic/Object/String/enum
-  if (keyArg.isDynamic ||
+  if (keyArg is DynamicType ||
       (!keyArg.isNullableType &&
           (keyArg.isDartCoreObject ||
               coreStringTypeChecker.isExactlyType(keyArg) ||

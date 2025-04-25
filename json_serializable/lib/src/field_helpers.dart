@@ -3,6 +3,9 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/src/dart/element/element.dart' // ignore: implementation_imports
+    show
+        InterfaceElementImpl;
 import 'package:analyzer/src/dart/element/inheritance_manager3.dart' // ignore: implementation_imports
     show
         InheritanceManager3;
@@ -69,10 +72,10 @@ class _FieldSet implements Comparable<_FieldSet> {
   }
 }
 
-/// Returns a [Set] of all instance [FieldElement] items for [element] and
+/// Returns a [List] of all instance [FieldElement] items for [element] and
 /// super classes, sorted first by their location in the inheritance hierarchy
 /// (super first) and then by their location in the source file.
-Iterable<FieldElement> createSortedFieldSet(ClassElement element) {
+List<FieldElement> createSortedFieldSet(ClassElement element) {
   // Get all of the fields that need to be assigned
   // TODO: support overriding the field set with an annotation option
   final elementInstanceFields = Map.fromEntries(
@@ -81,15 +84,18 @@ Iterable<FieldElement> createSortedFieldSet(ClassElement element) {
   final inheritedFields = <String, FieldElement>{};
   final manager = InheritanceManager3();
 
-  for (final v in manager.getInheritedConcreteMap2(element).values) {
+  for (final v in manager
+      .getInheritedConcreteMap2(element as InterfaceElementImpl)
+      .values) {
     assert(v is! FieldElement);
     if (_dartCoreObjectChecker.isExactly(v.enclosingElement3)) {
       continue;
     }
 
-    if (v is PropertyAccessorElement && v.isGetter) {
-      assert(v.variable is FieldElement);
-      final variable = v.variable as FieldElement;
+    if (v is PropertyAccessorElement &&
+        (v as PropertyAccessorElement).isGetter) {
+      assert((v as PropertyAccessorElement).variable2 is FieldElement);
+      final variable = (v as PropertyAccessorElement).variable2 as FieldElement;
       assert(!inheritedFields.containsKey(variable.name));
       inheritedFields[variable.name] = variable;
     }
@@ -104,7 +110,7 @@ Iterable<FieldElement> createSortedFieldSet(ClassElement element) {
       .toList()
     ..sort();
 
-  return fields.map((fs) => fs.field).toList();
+  return fields.map((fs) => fs.field).toList(growable: false);
 }
 
 const _dartCoreObjectChecker = TypeChecker.fromRuntime(Object);

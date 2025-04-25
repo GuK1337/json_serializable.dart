@@ -2,8 +2,8 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-// ignore_for_file: prefer_const_declarations
 @TestOn('vm')
+library;
 
 import 'dart:convert';
 
@@ -86,8 +86,8 @@ void main() {
   }); // end nullable group
 }
 
-final _defaultValue = {'a': 1};
-final _altValue = {'b': 2};
+const _defaultValue = {'a': 1};
+const _altValue = {'b': 2};
 
 final _defaultInput = <String, Object?>{
   'value': _defaultValue,

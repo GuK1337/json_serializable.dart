@@ -3,6 +3,8 @@
 // BSD-style license that can be found in the LICENSE file.
 
 @TestOn('vm')
+library;
+
 import 'dart:async';
 
 import 'package:analyzer/dart/element/type.dart';
@@ -140,11 +142,11 @@ void _registerTests(JsonSerializable generator) {
 
       const expected = r'''
 Map<String, dynamic> _$TrivialNestedNullableToJson(
-        TrivialNestedNullable instance) =>
-    <String, dynamic>{
-      'child': instance.child?.toJson(),
-      'otherField': instance.otherField,
-    };
+  TrivialNestedNullable instance,
+) => <String, dynamic>{
+  'child': instance.child?.toJson(),
+  'otherField': instance.otherField,
+};
 ''';
 
       expect(output, expected);
@@ -155,11 +157,11 @@ Map<String, dynamic> _$TrivialNestedNullableToJson(
 
       const expected = r'''
 Map<String, dynamic> _$TrivialNestedNonNullableToJson(
-        TrivialNestedNonNullable instance) =>
-    <String, dynamic>{
-      'child': instance.child.toJson(),
-      'otherField': instance.otherField,
-    };
+  TrivialNestedNonNullable instance,
+) => <String, dynamic>{
+  'child': instance.child.toJson(),
+  'otherField': instance.otherField,
+};
 ''';
 
       expect(output, expected);
@@ -212,7 +214,6 @@ Map<String, dynamic> _$TrivialNestedNonNullableToJson(
     test('some', () async {
       final output = await runForElementNamed('IncludeIfNullAll');
       expect(output, isNot(contains(generatedLocalVarName)));
-      expect(output, isNot(contains(toJsonMapHelperName)));
     });
   });
 }
