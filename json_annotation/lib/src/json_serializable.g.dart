@@ -25,7 +25,8 @@ JsonSerializable _$JsonSerializableFromJson(Map<String, dynamic> json) =>
             'field_rename',
             'generic_argument_factories',
             'ignore_unannotated',
-            'include_if_null'
+            'include_if_null',
+            'default_on_exception'
           ],
         );
         final val = JsonSerializable(
@@ -47,6 +48,8 @@ JsonSerializable _$JsonSerializableFromJson(Map<String, dynamic> json) =>
           includeIfNull: $checkedConvert('include_if_null', (v) => v as bool?),
           genericArgumentFactories:
               $checkedConvert('generic_argument_factories', (v) => v as bool?),
+          defaultOnException:
+              $checkedConvert('default_on_exception', (v) => v as bool?),
         );
         return val;
       },
@@ -60,7 +63,8 @@ JsonSerializable _$JsonSerializableFromJson(Map<String, dynamic> json) =>
         'fieldRename': 'field_rename',
         'ignoreUnannotated': 'ignore_unannotated',
         'includeIfNull': 'include_if_null',
-        'genericArgumentFactories': 'generic_argument_factories'
+        'genericArgumentFactories': 'generic_argument_factories',
+        'defaultOnException': 'default_on_exception'
       },
     );
 
@@ -78,6 +82,7 @@ Map<String, dynamic> _$JsonSerializableToJson(JsonSerializable instance) =>
       'generic_argument_factories': instance.genericArgumentFactories,
       'ignore_unannotated': instance.ignoreUnannotated,
       'include_if_null': instance.includeIfNull,
+      'default_on_exception': instance.defaultOnException,
     };
 
 const _$FieldRenameEnumMap = {

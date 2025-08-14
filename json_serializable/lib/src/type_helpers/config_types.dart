@@ -54,6 +54,7 @@ class ClassConfig {
   final bool includeIfNull;
   final Map<String, String> ctorParamDefaults;
   final List<DartObject> converters;
+  final bool defaultOnException;
 
   const ClassConfig({
     required this.anyMap,
@@ -70,6 +71,7 @@ class ClassConfig {
     required this.includeIfNull,
     this.converters = const [],
     this.ctorParamDefaults = const {},
+    required this.defaultOnException,
   });
 
   factory ClassConfig.fromJsonSerializable(JsonSerializable config) =>
@@ -94,6 +96,8 @@ class ClassConfig {
         fieldRename: config.fieldRename ?? ClassConfig.defaults.fieldRename,
         disallowUnrecognizedKeys: config.disallowUnrecognizedKeys ??
             ClassConfig.defaults.disallowUnrecognizedKeys,
+        defaultOnException: config.defaultOnException ??
+            ClassConfig.defaults.defaultOnException,
         // TODO typeConverters = []
       );
 
@@ -112,21 +116,23 @@ class ClassConfig {
     genericArgumentFactories: false,
     ignoreUnannotated: false,
     includeIfNull: true,
+    defaultOnException: false,
   );
 
   JsonSerializable toJsonSerializable() => JsonSerializable(
-        checked: checked,
-        anyMap: anyMap,
-        constructor: constructor,
-        createFactory: createFactory,
-        createToJson: createToJson,
-        createFieldMap: createFieldMap,
-        ignoreUnannotated: ignoreUnannotated,
-        explicitToJson: explicitToJson,
-        includeIfNull: includeIfNull,
-        genericArgumentFactories: genericArgumentFactories,
-        fieldRename: fieldRename,
-        disallowUnrecognizedKeys: disallowUnrecognizedKeys,
-        // TODO typeConverters = []
+      checked: checked,
+      anyMap: anyMap,
+      constructor: constructor,
+      createFactory: createFactory,
+      createToJson: createToJson,
+      createFieldMap: createFieldMap,
+      ignoreUnannotated: ignoreUnannotated,
+      explicitToJson: explicitToJson,
+      includeIfNull: includeIfNull,
+      genericArgumentFactories: genericArgumentFactories,
+      fieldRename: fieldRename,
+      disallowUnrecognizedKeys: disallowUnrecognizedKeys,
+      defaultOnException: defaultOnException,
+      // TODO typeConverters = []
       );
 }
