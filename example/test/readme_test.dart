@@ -25,9 +25,9 @@ void _expect(String fileName) {
 
 const _pubspecContent = r'''
 dependencies:
-  json_annotation: ^4.7.0
+  json_annotation: ^4.9.0
 
 dev_dependencies:
-  build_runner: ^2.0.0
-  json_serializable: ^6.0.0
+  build_runner: ^2.3.3
+  json_serializable: ^6.8.0
 ''';

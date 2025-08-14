@@ -19,6 +19,8 @@ JsonSerializable _$JsonSerializableFromJson(Map<String, dynamic> json) =>
             'constructor',
             'create_factory',
             'create_field_map',
+            'create_json_keys',
+            'create_per_field_to_json',
             'create_to_json',
             'disallow_unrecognized_keys',
             'explicit_to_json',
@@ -26,7 +28,7 @@ JsonSerializable _$JsonSerializableFromJson(Map<String, dynamic> json) =>
             'generic_argument_factories',
             'ignore_unannotated',
             'include_if_null',
-            'default_on_exception'
+            'default_on_exception',
           ],
         );
         final val = JsonSerializable(
@@ -35,6 +37,8 @@ JsonSerializable _$JsonSerializableFromJson(Map<String, dynamic> json) =>
           constructor: $checkedConvert('constructor', (v) => v as String?),
           createFieldMap:
               $checkedConvert('create_field_map', (v) => v as bool?),
+          createJsonKeys:
+              $checkedConvert('create_json_keys', (v) => v as bool?),
           createFactory: $checkedConvert('create_factory', (v) => v as bool?),
           createToJson: $checkedConvert('create_to_json', (v) => v as bool?),
           disallowUnrecognizedKeys:
@@ -48,6 +52,8 @@ JsonSerializable _$JsonSerializableFromJson(Map<String, dynamic> json) =>
           includeIfNull: $checkedConvert('include_if_null', (v) => v as bool?),
           genericArgumentFactories:
               $checkedConvert('generic_argument_factories', (v) => v as bool?),
+          createPerFieldToJson:
+              $checkedConvert('create_per_field_to_json', (v) => v as bool?),
           defaultOnException:
               $checkedConvert('default_on_exception', (v) => v as bool?),
         );
@@ -56,6 +62,7 @@ JsonSerializable _$JsonSerializableFromJson(Map<String, dynamic> json) =>
       fieldKeyMap: const {
         'anyMap': 'any_map',
         'createFieldMap': 'create_field_map',
+        'createJsonKeys': 'create_json_keys',
         'createFactory': 'create_factory',
         'createToJson': 'create_to_json',
         'disallowUnrecognizedKeys': 'disallow_unrecognized_keys',
@@ -64,7 +71,8 @@ JsonSerializable _$JsonSerializableFromJson(Map<String, dynamic> json) =>
         'ignoreUnannotated': 'ignore_unannotated',
         'includeIfNull': 'include_if_null',
         'genericArgumentFactories': 'generic_argument_factories',
-        'defaultOnException': 'default_on_exception'
+        'createPerFieldToJson': 'create_per_field_to_json',
+        'defaultOnException': 'default_on_exception',
       },
     );
 
@@ -75,6 +83,8 @@ Map<String, dynamic> _$JsonSerializableToJson(JsonSerializable instance) =>
       'constructor': instance.constructor,
       'create_factory': instance.createFactory,
       'create_field_map': instance.createFieldMap,
+      'create_json_keys': instance.createJsonKeys,
+      'create_per_field_to_json': instance.createPerFieldToJson,
       'create_to_json': instance.createToJson,
       'disallow_unrecognized_keys': instance.disallowUnrecognizedKeys,
       'explicit_to_json': instance.explicitToJson,

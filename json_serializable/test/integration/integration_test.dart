@@ -7,12 +7,14 @@ import 'package:test/test.dart';
 
 import '../test_utils.dart';
 import 'converter_examples.dart';
+import 'create_per_field_to_json_example.dart';
 import 'field_map_example.dart';
 import 'json_enum_example.dart';
+import 'json_keys_example.dart' as js_keys;
 import 'json_test_common.dart' show Category, Platform, StatusCode;
 import 'json_test_example.dart';
 
-Matcher _throwsArgumentError(matcher) =>
+Matcher _throwsArgumentError(Object matcher) =>
     throwsA(isArgumentError.having((e) => e.message, 'message', matcher));
 
 void main() {
@@ -256,18 +258,23 @@ void main() {
     test('support ints as doubles', () {
       final value = {
         'doubles': [0, 0.0],
-        'nnDoubles': [0, 0.0]
+        'nnDoubles': [0, 0.0],
+        'doubleAsString': 3,
       };
 
-      roundTripNumber(Numbers.fromJson(value));
+      final output = roundTripObject(Numbers.fromJson(value), Numbers.fromJson);
+      expect(output.doubleAsString, 3.0.toString());
     });
 
-    test('does not support doubles as ints', () {
+    test('support doubles as ints', () {
       final value = {
-        'ints': [3.14, 0],
+        'ints': [3, 3.0, 3.14, 0],
       };
 
-      expect(() => Numbers.fromJson(value), throwsTypeError);
+      final output = roundTripObject(Numbers.fromJson(value), Numbers.fromJson);
+
+      // NOTE: all of the double values are truncated
+      expect(output.ints, [3, 3, 3, 0]);
     });
   });
 
@@ -360,6 +367,48 @@ void main() {
     );
   });
 
+  test(r'_$ModelPerFieldToJson', () {
+    expect(ModelPerFieldToJson.firstName('foo'), 'foo');
+
+    expect(ModelPerFieldToJson.enumValue(EnumValue.first), '1');
+    expect(ModelPerFieldToJson.enumValue(EnumValue.second), 'second');
+
+    expect(ModelPerFieldToJson.nested(Nested('foo')), {'value': 'foo'});
+    expect(ModelPerFieldToJson.nested(null), null);
+    expect(
+      ModelPerFieldToJson.nestedExcludeIfNull(Nested('foo')),
+      {'value': 'foo'},
+    );
+    expect(ModelPerFieldToJson.nestedExcludeIfNull(null), null);
+    expect(
+      ModelPerFieldToJson.nestedGeneric(GenericFactory(42, {'key': 21})),
+      {
+        'value': 42,
+        'map': {'key': 21},
+      },
+    );
+  });
+
+  test(r'_$GenericFactoryPerFieldToJson', () {
+    expect(
+      GenericFactoryPerFieldToJson.value<int>(42, (value) => '$value'),
+      '42',
+    );
+    expect(
+      GenericFactoryPerFieldToJson.value<String>('42', int.tryParse),
+      42,
+    );
+
+    expect(
+      GenericFactoryPerFieldToJson.map<int>({'foo': 21}, (value) => '$value'),
+      {'foo': '21'},
+    );
+    expect(
+      GenericFactoryPerFieldToJson.map<String>({'key': '42'}, int.tryParse),
+      {'key': 42},
+    );
+  });
+
   group('classes with converters', () {
     Issue1202RegressionClass roundTripIssue1202RegressionClass(int value) {
       final instance = Issue1202RegressionClass(
@@ -423,5 +472,13 @@ void main() {
   test('Regression1229', () {
     final instance = Regression1229();
     expect(instance.toJson(), isEmpty);
+  });
+
+  test('value field index fun', () {
+    expect(enumValueFieldIndexValues, [0, 701, 2]);
+  });
+
+  test('ModelJsonKeys', () {
+    expect(js_keys.keys, {'first-name', 'LAST_NAME'});
   });
 }

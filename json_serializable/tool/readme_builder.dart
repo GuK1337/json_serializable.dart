@@ -13,7 +13,7 @@ import 'package:yaml/yaml.dart';
 import 'test_type_builder.dart';
 import 'test_type_data.dart';
 
-Builder readmeBuilder([_]) => _ReadmeBuilder();
+Builder readmeBuilder([BuilderOptions? _]) => _ReadmeBuilder();
 
 class _ReadmeBuilder extends Builder {
   @override
@@ -59,16 +59,11 @@ class _ReadmeBuilder extends Builder {
         final memberName = match.group(3);
         final linkContent = '[`$className${memberName ?? ''}`]';
         String linkValue;
-        switch (context) {
-          case 'core':
-            linkValue = _coreTypeUri(className);
-            break;
-          case 'ja':
-            linkValue = jsonAnnotationUri(className, memberName?.substring(1));
-            break;
-          default:
-            linkValue = 'https://unknown.com/$context/$className';
-        }
+        linkValue = switch (context) {
+          'core' => _coreTypeUri(className),
+          'ja' => jsonAnnotationUri(className, memberName?.substring(1)),
+          _ => 'https://unknown.com/$context/$className'
+        };
         foundClasses[linkContent] = linkValue;
         return linkContent;
       }
@@ -108,7 +103,7 @@ const _templatePath = 'tool/readme/readme_template.md';
 const _readmePath = 'README.md';
 
 String _coreTypeUri(String type) =>
-    'https://api.dart.dev/stable/dart-core/$type-class.html';
+    'https://api.dart.dev/dart-core/$type-class.html';
 
 String _classCleanAndSort(Iterable<String> classes) {
   final initial = (classes.map((e) => e == customEnumType ? 'Enum' : e).toList()
@@ -159,13 +154,13 @@ extension on BuildStep {
   AssetId assetIdForInputPackage(String path) => AssetId(inputId.package, path);
 
   Future<String> jsonAnnotationVersion() async {
-    final lockFileAssetId = assetIdForInputPackage('pubspec.lock');
-    final lockFileContent = await readAsString(lockFileAssetId);
-    final lockFileYaml =
-        loadYaml(lockFileContent, sourceUrl: lockFileAssetId.uri) as YamlMap;
-    final pkgMap = lockFileYaml['packages'] as YamlMap;
-    final jsonAnnotationMap = pkgMap['json_annotation'] as YamlMap;
-    final jsonAnnotationVersionString = jsonAnnotationMap['version'] as String;
+    final jsonAnnotationPubspecAssetId =
+        AssetId('json_annotation', 'pubspec.yaml');
+    final jsonAnnotationPubspecContent =
+        await readAsString(jsonAnnotationPubspecAssetId);
+    final pubspecYaml = loadYaml(jsonAnnotationPubspecContent,
+        sourceUrl: jsonAnnotationPubspecAssetId.uri) as YamlMap;
+    final jsonAnnotationVersionString = pubspecYaml['version'] as String;
 
     final jsonAnnotationVersion =
         Version.parse(jsonAnnotationVersionString.trim());

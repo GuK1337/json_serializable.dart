@@ -39,7 +39,7 @@ enum FieldRename {
 )
 @Target({TargetKind.classType})
 class JsonSerializable {
-  /// If `true`, [Map] types are *not* assumed to be [Map<String, dynamic>]
+  /// If `true`, [Map] types are *not* assumed to be [Map]`<String, dynamic>`
   /// – which is the default type of [Map] instances return by JSON decode in
   /// `dart:convert`.
   ///
@@ -86,6 +86,31 @@ class JsonSerializable {
   /// This constant can be used by other code-generators to support features
   /// such as [fieldRename].
   final bool? createFieldMap;
+
+  /// If `true` (defaults to false), a private class `_$ExampleJsonKeys`
+  /// class is created in the generated part file.
+  ///
+  /// This class will contain every property as a [String] field with the JSON
+  /// key as the value.
+  ///
+  /// ```dart
+  /// @JsonSerializable(createJsonKeys: true)
+  /// class Example {
+  ///   @JsonKey(name: 'LAST_NAME')
+  ///   String? firstName;
+  ///
+  ///   // Will have the value `LAST_NAME`
+  ///   static const firstName = _$ExampleJsonKeys.firstName;
+  /// }
+  /// ```
+  final bool? createJsonKeys;
+
+  /// If `true` (defaults to false), a private, static `_$ExamplePerFieldToJson`
+  /// abstract class will be generated in the part file.
+  ///
+  /// This abstract class will contain one static function per property,
+  /// exposing a way to encode only this property instead of the entire object.
+  final bool? createPerFieldToJson;
 
   /// If `true` (the default), A top-level function is created that you can
   /// reference from your class.
@@ -159,7 +184,7 @@ class JsonSerializable {
   ///   T Function(Object json) fromJsonT,
   /// ) {
   ///   return Response<T>()
-  ///     ..status = json['status'] as int
+  ///     ..status = (json['status'] as num).toInt()
   ///     ..value = fromJsonT(json['value']);
   /// }
   ///
@@ -186,7 +211,7 @@ class JsonSerializable {
   /// generated.
   ///
   /// It will have the same effect as if those fields had been annotated with
-  /// `@JsonKey(ignore: true)`.
+  /// [JsonKey.includeToJson] and [JsonKey.includeFromJson] set to `false`
   final bool? ignoreUnannotated;
 
   /// Whether the generator should include fields with `null` values in the
@@ -234,7 +259,7 @@ class JsonSerializable {
   /// @myCustomAnnotation
   /// class Another {...}
   /// ```
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   final List<JsonConverter>? converters;
 
   /// Creates a new [JsonSerializable] instance.
@@ -244,6 +269,7 @@ class JsonSerializable {
     this.checked,
     this.constructor,
     this.createFieldMap,
+    this.createJsonKeys,
     this.createFactory,
     this.createToJson,
     this.disallowUnrecognizedKeys,
@@ -253,6 +279,7 @@ class JsonSerializable {
     this.includeIfNull,
     this.converters,
     this.genericArgumentFactories,
+    this.createPerFieldToJson,
     this.defaultOnException,
   });
 

@@ -1,3 +1,68 @@
+## 6.9.5
+
+- Support the `analyzer: '>=6.9.0 <8.0.0'`.
+- Fixed use of deprecated analyzer APIs.
+
+## 6.9.4
+
+- Fix extra line being generated when targeting Dart 3.7 package.
+
+## 6.9.3
+
+- Error out if the target package does not have a language version of `3.0` or 
+  greater.
+
+## 6.9.2
+
+- Support the latest `package:analyzer`.
+
+## 6.9.1
+
+- Support the latest `package:source_gen`.
+- Require Dart 3.6
+
+## 6.9.0
+
+- Use conditional map syntax to clean up `null` handling in `toJson` functions.
+- Fix core Dart type links in docs.
+- Require Dart 3.5
+
+## 6.8.0
+
+- Add type arguments to `Map` literals used for `Record` serialization.
+- Add support for `JsonSerializable(createJsonKeys: true)`.
+  ([#1401](https://github.com/google/json_serializable.dart/pull/1401))
+- Handle decoding an `int` value from a `double` literal. 
+  This now matches the behavior of `double` values being encoded as `int`.
+
+## 6.7.1
+
+- Support the latest `package:analyzer`.
+
+## 6.7.0
+
+- Support `Record` types.
+- Require Dart 3.0
+- Require `analyzer: ^5.12.0`
+
+## 6.6.2
+
+- Better handling of `Object?` or `dynamic` as `fromJson` constructor param.
+- Require Dart 2.19
+
+## 6.6.1
+
+- Fix bug when `JsonKey.includeToJson` is `false`.
+
+## 6.6.0
+
+- Support for `JsonKey.includeFromJson` and `JsonKey.includeToJson`.
+- Support `JsonEnum.valueField` being set with `'index'`.
+- Support `JsonSerializable.createPerFieldToJson`.
+- Require Dart SDK `>=2.18.0`.
+- Require `analyzer: ^5.2.0`
+- Require `json_annotation: '>=4.8.0 <4.9.0'`
+
 ## 6.5.4
 
 - Fixed handling of nullable fields with converters which return non-nullable
@@ -20,7 +85,7 @@
 ## 6.5.0
 
 - Allow constructors to be passed to `JsonKey` parameters that support
-  `Function` types. 
+  `Function` types.
 - Accept `Function` values for `JsonKey.defaultValue`. The provided
   `Function` will be invoked for the default value if the target JSON element is
   missing or `null`.

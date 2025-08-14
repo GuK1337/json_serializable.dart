@@ -5,6 +5,7 @@
 import 'dart:io';
 
 import 'package:build/build.dart';
+import 'package:dart_style/dart_style.dart';
 import 'package:yaml/yaml.dart';
 
 // Until we have verification in pkg:build and friends
@@ -68,4 +69,9 @@ class Replacement {
 
     return outputContent.replaceAll(',)', ',\n)');
   }
+}
+
+extension BuildStepExtension on BuildStep {
+  Future<DartFormatter> formatter() async => DartFormatter(
+      languageVersion: (await inputLibrary).languageVersion.effective);
 }
